@@ -29,6 +29,9 @@ requirements: test_environment
 data: requirements
 	$(PYTHON_INTERPRETER) src/data/make_dataset.py data/raw data/processed
 
+sample_data:
+	@bash -c "src/data/sample_dataset.sh $(N_SAMPLES) data/raw/loan.csv data/processed/loan_sampled_$(N_SAMPLES).csv"
+
 ## Delete all compiled Python files
 clean:
 	find . -type f -name "*.py[co]" -delete
