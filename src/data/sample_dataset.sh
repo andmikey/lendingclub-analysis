@@ -16,4 +16,7 @@ function usage {
 if [ "$#" -ne 3 ]; then
     usage
 fi
-shuf -n "$1" "$2" > "$3"
+# Write header to file
+head -n 1 "$2" > "$3"
+# Skip shuffling header and sample n_samples
+tail -n +2 "$2" | shuf -n "$1" >> "$3"
