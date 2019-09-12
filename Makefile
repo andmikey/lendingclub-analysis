@@ -29,6 +29,8 @@ requirements: test_environment
 data: requirements
 	$(PYTHON_INTERPRETER) src/data/make_dataset.py data/raw data/processed
 
+## Sample n_samples from the data.
+## Usage: `make sampledata N_SAMPLES=100000`
 sample_data:
 	@bash -c "src/data/sample_dataset.sh $(N_SAMPLES) data/raw/loan.csv data/processed/loan_sampled_$(N_SAMPLES).csv"
 
