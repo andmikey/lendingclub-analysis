@@ -22,17 +22,23 @@ endif
 
 ## Install Python Dependencies
 requirements: test_environment
-	$(PYTHON_INTERPRETER) -m pip install -U pip setuptools wheel
-	$(PYTHON_INTERPRETER) -m pip install -r requirements.txt
+	$(PYTHON_INTERPRETER) -m pip install --user -U pip setuptools wheel
+	$(PYTHON_INTERPRETER) -m pip install --user -r requirements.txt
 
 ## Make Dataset
 data: requirements
 	$(PYTHON_INTERPRETER) src/data/make_dataset.py data/raw data/processed
 
 ## Sample n_samples from the data.
-## Usage: `make sampledata N_SAMPLES=100000`
+## Usage: `make sample_data N_SAMPLES=50000`
 sample_data:
 	@bash -c "src/data/sample_dataset.sh $(N_SAMPLES) data/raw/loan.csv data/processed/loan_sampled_$(N_SAMPLES).csv"
+
+## Prepare and clean the dataset
+## Usage: `make clean_data FILE_TO_CLEAN=loan_sampled_50000.csv
+clean_data:
+#requirements
+	$(PYTHON_INTERPRETER) src/data/clean_dataset.py data/processed/$(FILE_TO_CLEAN) data/processed/cleaned-$(FILE_TO_CLEAN)
 
 ## Delete all compiled Python files
 clean:
