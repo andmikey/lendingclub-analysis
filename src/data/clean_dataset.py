@@ -21,32 +21,26 @@ def fix_dtypes(df):
     df["is_payment_plan"] = df["pymnt_plan"] == "y"
     df["is_whole_loan"] = df["initial_list_status"] == "w"
     df["is_individual_app"] = df["application_type"] == "Individual"
-    df["is_hardship"] = df["hardship_flag"] == "Y"
-    df["is_debt_settlement"] = df["debt_settlement_flag"] == "Y"
     df["is_36_month_term"] = df["term"] == "36 months"
     df["term_months"] = df["term"].str[1:3].astype(int)
     df["is_cash"] = df["disbursement_method"] == "Cash"
     df.drop(columns = ["pymnt_plan", "initial_list_status", "application_type", 
-                       "hardship_flag", "debt_settlement_flag", "term", "disbursement_method"], inplace = True)
+                       "term", "disbursement_method"], inplace = True)
 
     # Dates
-    for col in ["issue_d", "earliest_cr_line", "last_pymnt_d", "next_pymnt_d", "last_credit_pull_d",
-                "hardship_start_date", "hardship_end_date", "payment_plan_start_date", 
-                "debt_settlement_flag_date", "settlement_date", "sec_app_earliest_cr_line"]:
+    for col in ["issue_d", "earliest_cr_line"]:
         df[col] = pd.to_datetime(df[col], infer_datetime_format=True)
 
     # Categories
     for col in ["grade", "sub_grade", "home_ownership", 
                 "verification_status", "purpose", 
-                "addr_state", "verification_status_joint", 
-                "hardship_type", "hardship_reason", "hardship_status",
-                "hardship_loan_status", "settlement_status"]:
+                "addr_state"]:
         df[col] = df[col].astype('category')
 
     # Employment length
     df["emp_length"] = df["emp_length"].replace({"10+ years": "11 years", "< 1 year": "0 years"})
     df["emp_length"] = df["emp_length"].str[:2].astype('float')
-
+    
     df.drop(columns = ["emp_title", "desc", "title", "zip_code"], inplace = True)
 
     return df
@@ -56,6 +50,9 @@ def fix_missing_values(df):
 
     all_values_missing = ["id", "member_id", "url"]
     df.drop(columns = all_values_missing, inplace = True)
+
+    # Fix employment length
+    df["emp_length"] = df["emp_length"].fillna("0 years")
 
     df_data_dictionary = pd.read_excel("data/raw/LCDataDictionary.xlsx").dropna()
     is_settlement_or_hardship = df_data_dictionary["Description"].str.contains("settle|hardship",
@@ -68,13 +65,13 @@ def fix_missing_values(df):
         
     joint_columns = [x for x in df.columns if ('joint' in x or 'sec_app' in x)]
     df.drop(columns = joint_columns, inplace = True)
-    df.drop(df[~df["is_individual_app"]].index, inplace = True)
+    df.drop(df[df["application_type"] != "Individual"].index, inplace = True)
 
     columns_remaining = df.columns[df.isna().any()]
 
     cols_to_drop = []
     cols_to_set_zero = []
-    
+
     cols_to_drop += ["next_pymnt_d", "last_pymnt_d", "last_pymnt_amnt",
                 "last_credit_pull_d"]
 
@@ -121,6 +118,25 @@ def fix_missing_values(df):
     
     return df
 
+def clean_dataset(df):
+    # Add target variable
+    logger.info("Adding target column")
+    df = add_target_variable(df)
+    logger.info(f"Target variable counts: \n{df.target.value_counts()}")
+    logger.info(f"Dataframe shape after adding target column: {df.shape}")
+    
+    # Missing values
+    logger.info("Fixing missing values")
+    df = fix_missing_values(df)
+    logger.info(f"Dataframe shape after fixing missing values: {df.shape}")
+
+    # Fix dtypes
+    #logger.info("Fixing dtypes")
+    #df = fix_dtypes(df)
+    #logger.info(f"Dataframe shape after fixing dtypes: {df.shape}")
+    
+    return df
+
 @click.command()
 @click.argument('input_file', type=click.Path(exists=True))
 @click.argument('output_file', type=click.Path())
@@ -129,28 +145,11 @@ def main(input_file, output_file):
     Runs data processing scripts to prepare and clean dataset.
     """
     logger.info('Preparing and cleaning dataset')
-
     df = pd.read_csv(input_file, low_memory = False)
     logger.info(f"Input dataframe shape: {df.shape}")
-    
-    # Add target variable
-    logger.info("Adding target column")
-    df = add_target_variable(df)
-    logger.info(f"Target variable counts: \n{df.target.value_counts()}")
-    logger.info(f"Dataframe shape after adding target column: {df.shape}")
-    
-    # Fix dtypes
-    logger.info("Fixing dtypes")
-    df = fix_dtypes(df)
-    logger.info(f"Dataframe shape after fixing dtypes: {df.shape}")
-    
-    # Missing values
-    logger.info("Fixing missing values")
-    df = fix_missing_values(df)
-    logger.info(f"Dataframe shape after fixing missing values: {df.shape}")
-    
+    df = clean_dataset(df)
     logger.info(f"Saving cleaned dataframe to {output_file}")
-    df.to_csv(output_file, index=False)
+    df.to_csv(output_file, index = False)
     
 if __name__ == '__main__':
     log_fmt = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
