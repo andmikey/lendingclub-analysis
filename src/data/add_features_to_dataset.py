@@ -22,7 +22,8 @@ def add_features(df):
     df["is_grade_f_or_g"] = df["grade"].isin(["F", "G"])
     df["is_verified"] = df["verification_status"] != "Not Verified"
     df["loan:income_ratio"] = df["loan_amnt"] / df["annual_inc"]
-    df.drop(columns = ["grade", "sub_grade", "home_ownership", "verification_status", "purpose", "addr_state"],
+    df.drop(columns = ["grade", "sub_grade", "home_ownership", "verification_status", "purpose", "addr_state",
+                       "issue_d", "earliest_cr_line", "is_36_month_term"],
             inplace = True)
     return df
 
