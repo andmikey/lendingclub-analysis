@@ -40,6 +40,11 @@ clean_data:
 #requirements
 	$(PYTHON_INTERPRETER) src/data/clean_dataset.py data/processed/$(FILE_TO_CLEAN) data/processed/cleaned-$(FILE_TO_CLEAN)
 
+## Add features to the dataset (ie. prepare for predictive steps)
+## Usage: `make add_features FILE_TO_CLEAN=cleaned-loan_sampled_50000.csv
+add_features:
+	$(PYTHON_INTERPRETER) src/data/add_features_to_dataset.py data/processed/$(FILE_TO_CLEAN) data/processed/features-$(FILE_TO_CLEAN)
+
 ## Delete all compiled Python files
 clean:
 	find . -type f -name "*.py[co]" -delete
