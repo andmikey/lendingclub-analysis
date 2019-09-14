@@ -142,9 +142,9 @@ def clean_dataset(df):
     df = remove_future_columns(df)
     logger.info(f"Dataframe shape after removing future columns: {df.shape}")    
     # Fix dtypes
-    #logger.info("Fixing dtypes")
-    #df = fix_dtypes(df)
-    #logger.info(f"Dataframe shape after fixing dtypes: {df.shape}")
+    logger.info("Fixing dtypes")
+    df = fix_dtypes(df)
+    logger.info(f"Dataframe shape after fixing dtypes: {df.shape}")
     
     return df
 
