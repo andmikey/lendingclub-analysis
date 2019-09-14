@@ -118,6 +118,14 @@ def fix_missing_values(df):
     
     return df
 
+def remove_future_columns(df):
+    cols = ["collection_recovery_fee", "funded_amnt", "funded_amnt_inv", "out_prncp", "out_prncp_inv",
+            "recoveries", "total_pymnt", "total_pymnt_inv", "total_rec_int", "total_rec_late_fee",
+            "total_rec_prncp"]
+    logger.info(f"Removing {len(cols)} columns")
+    df.drop(columns = cols, inplace = True)
+    return df
+
 def clean_dataset(df):
     # Add target variable
     logger.info("Adding target column")
@@ -130,6 +138,9 @@ def clean_dataset(df):
     df = fix_missing_values(df)
     logger.info(f"Dataframe shape after fixing missing values: {df.shape}")
 
+    # Remove columns that we won't know about when the loan is issued
+    df = remove_future_columns(df)
+    logger.info(f"Dataframe shape after removing future columns: {df.shape}")    
     # Fix dtypes
     #logger.info("Fixing dtypes")
     #df = fix_dtypes(df)
