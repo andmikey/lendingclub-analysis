@@ -43,7 +43,7 @@ clean_data:
 ## Add features to the dataset (ie. prepare for predictive steps)
 ## Usage: `make add_features SRC=data/interim/loan_sampled_50000-cleaned.csv DEST=data/processed/loan_sampled_50000.csv`
 add_features:
-	$(PYTHON_INTERPRETER) src/data/add_features_to_dataset.py $(SRC) $(DEST)
+	$(PYTHON_INTERPRETER) src/features/build_features.py $(SRC) $(DEST)
 
 ## Delete all compiled Python files
 clean:
