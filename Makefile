@@ -32,18 +32,18 @@ data: requirements
 ## Sample n_samples from the data.
 ## Usage: `make sample_data N_SAMPLES=50000`
 sample_data:
-	@bash -c "src/data/sample_dataset.sh $(N_SAMPLES) data/raw/loan.csv data/processed/loan_sampled_$(N_SAMPLES).csv"
+	@bash -c "src/data/sample_dataset.sh $(N_SAMPLES) data/raw/loan.csv data/interim/loan_sampled_$(N_SAMPLES).csv"
 
 ## Prepare and clean the dataset
 ## Usage: `make clean_data FILE_TO_CLEAN=loan_sampled_50000.csv
 clean_data:
 #requirements
-	$(PYTHON_INTERPRETER) src/data/clean_dataset.py data/processed/$(FILE_TO_CLEAN) data/processed/cleaned-$(FILE_TO_CLEAN)
+	$(PYTHON_INTERPRETER) src/data/clean_dataset.py data/interim/$(FILE_TO_CLEAN) data/interim/cleaned-$(FILE_TO_CLEAN)
 
 ## Add features to the dataset (ie. prepare for predictive steps)
 ## Usage: `make add_features FILE_TO_CLEAN=cleaned-loan_sampled_50000.csv
 add_features:
-	$(PYTHON_INTERPRETER) src/data/add_features_to_dataset.py data/processed/$(FILE_TO_CLEAN) data/processed/features-$(FILE_TO_CLEAN)
+	$(PYTHON_INTERPRETER) src/data/add_features_to_dataset.py data/interim/$(FILE_TO_CLEAN) data/interim/features-$(FILE_TO_CLEAN)
 
 ## Delete all compiled Python files
 clean:
