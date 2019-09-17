@@ -26,8 +26,10 @@ requirements: test_environment
 	$(PYTHON_INTERPRETER) -m pip install --user -r requirements.txt
 
 ## Make Dataset
-data: requirements
-	$(PYTHON_INTERPRETER) src/data/make_dataset.py data/raw data/processed
+## Usage: (if wanting to sample dataset) `make data N_SAMPLES=50000`
+## Usage: (if not wanting to sample dataset) `make data N_SAMPLES=0`
+data: # requirements
+	$(PYTHON_INTERPRETER) src/data/make_dataset.py data/raw data/processed $(N_SAMPLES)
 
 ## Sample n_samples from the data.
 ## Usage: `make sample_data N_SAMPLES=50000`

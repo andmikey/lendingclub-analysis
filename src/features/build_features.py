@@ -25,10 +25,7 @@ def add_features(df):
             inplace = True)
     return df
 
-@click.command()
-@click.argument('input_file', type=click.Path(exists=True))
-@click.argument('output_file', type=click.Path())
-def main(input_file, output_file):
+def build_features_main(input_file, output_file):
     """ 
     Runs data processing scripts to prepare and clean dataset.
     """
@@ -39,6 +36,12 @@ def main(input_file, output_file):
     logger.info(f"Output dataframe shape: {df.shape}")
     logger.info(f"Saving dataframe to {output_file}")
     df.to_csv(output_file, index = False)
+    
+@click.command()
+@click.argument('input_file')
+@click.argument('output_file')
+def main(input_file, output_file):
+    build_features_main(input_file, output_file)
     
 if __name__ == '__main__':
     log_fmt = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'

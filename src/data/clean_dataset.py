@@ -54,7 +54,7 @@ def fix_missing_values(df):
     # Fix employment length
     df["emp_length"] = df["emp_length"].fillna("0 years")
 
-    df_data_dictionary = pd.read_excel("data/raw/LCDataDictionary.xlsx").dropna()
+    df_data_dictionary = pd.read_excel("references/LCDataDictionary.xlsx").dropna()
     is_settlement_or_hardship = df_data_dictionary["Description"].str.contains("settle|hardship",
                                                                                regex=True, case=False)
     settlement_cols = df_data_dictionary[is_settlement_or_hardship].LoanStatNew.values
@@ -148,10 +148,7 @@ def clean_dataset(df):
     
     return df
 
-@click.command()
-@click.argument('input_file', type=click.Path(exists=True))
-@click.argument('output_file', type=click.Path())
-def main(input_file, output_file):
+def clean_dataset_main(input_file, output_file):
     """ 
     Runs data processing scripts to prepare and clean dataset.
     """
@@ -161,6 +158,12 @@ def main(input_file, output_file):
     df = clean_dataset(df)
     logger.info(f"Saving cleaned dataframe to {output_file}")
     df.to_csv(output_file, index = False)
+    
+@click.command()
+@click.argument('input_file', type=click.Path(exists=True))
+@click.argument('output_file', type=click.Path())
+def main(input_file, output_file):
+    clean_dataset_main(input_file, output_file)
     
 if __name__ == '__main__':
     log_fmt = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
