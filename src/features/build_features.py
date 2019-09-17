@@ -27,9 +27,9 @@ def add_features(df):
 
 def build_features_main(input_file, output_file):
     """ 
-    Runs data processing scripts to prepare and clean dataset.
+    Adds features to dataset. 
     """
-    logger.info('Preparing and cleaning dataset')
+    logger.info('Adding features to dataset')
     df = pd.read_csv(input_file, low_memory = False)
     logger.info(f"Input dataframe shape: {df.shape}")
     df = add_features(df)
