@@ -5,6 +5,7 @@ from pathlib import Path
 from dotenv import find_dotenv, load_dotenv
 
 import pandas as pd
+import numpy as np
 
 logger = logging.getLogger(__name__)
     
@@ -13,14 +14,18 @@ def add_features(df):
                        "total_rev_hi_lim", "avg_cur_bal", "bc_open_to_buy", "delinq_amnt", "tot_hi_cred_lim",
                        "total_bal_ex_mort", "total_bc_limit", "total_il_high_credit_limit"]
     for col in outlier_columns:
-        df = df[df[col] <= df[col].quantile(0.99)]
+        # Log scaling - add 1 to account for 0 values
+        df[col] = np.log(df[col] + 1)
+        # Alternative: remove values outside the 99th percentile
+        # df = df[df[col] <= df[col].quantile(0.99)]
 
     df["is_grade_a"] = df["grade"].isin(["A"])
     df["is_grade_a_or_b"] = df["grade"].isin(["A", "B"])
     df["is_grade_f_or_g"] = df["grade"].isin(["F", "G"])
+    df.grade.replace(to_replace = dict(A=1, B=2, C=3, D=4, E=5, F=6, G=7), inplace = True)
     df["is_verified"] = df["verification_status"] != "Not Verified"
     df["loan:income_ratio"] = df["loan_amnt"] / df["annual_inc"]
-    df.drop(columns = ["grade", "sub_grade", "home_ownership", "verification_status", "purpose", "addr_state",
+    df.drop(columns = ["sub_grade", "home_ownership", "verification_status", "purpose", "addr_state",
                        "issue_d", "earliest_cr_line", "is_36_month_term"],
             inplace = True)
     return df
