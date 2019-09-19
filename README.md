@@ -1,6 +1,46 @@
 lendingclub-analysis
 ==============================
 
+This repository details an initial approach to developing a predictive model for the Lending Club loan data, available [here](https://www.kaggle.com/wendykan/lending-club-loan-data/downloads/lending-club-loan-data.zip).
+
+In this project, we develop a model to detect if a loan will default before the loan is issued.
+
+Instructions 
+------------
+
+1. Clone the repository
+
+```bash
+git clone https://github.com/andmikey/lendingclub-analysis.git
+```
+
+2. Download the data + place in correct folders
+
+```
+This is easiest done by hand, unless you already have the API tool set up.
+Go to the link above, and download the zip file.
+Move loan.csv to data/raw/loan.csv, and LCDataDictionary.xlsx to references/LCDataDictionary.xlsx. 
+```
+
+3. Start a new pip environment and install the required packages
+
+```bash
+virtualenv -p `which python3` env
+source env/bin/activate
+pip3 install -r requirements.txt
+```
+
+4. Pre-process the dataset for training
+
+```bash
+make data N_SAMPLES=0
+```
+
+5. Train the model
+
+```bash
+make train_model DATA=data/processed/loan.csv MODEL=models/model.pickle
+```
 
 Project Organization
 ------------
