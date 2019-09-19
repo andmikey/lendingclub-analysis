@@ -19,6 +19,10 @@ $ git clone https://github.com/andmikey/lendingclub-analysis.git
 ```
 This is best done by hand, unless you already have the API tool set up.
 Go to the link above, download the zip file to lending-club-loan-data.zip, unzip it, and move the files to their appropriate directories:
+$ mkdir data
+$ mkdir data/raw
+$ mkdir data/interim
+$ mkdir data/processed
 $ mv loan.csv data/raw/
 $ mv LCDataDictionary.xlsx references/
 ```
