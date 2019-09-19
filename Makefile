@@ -47,6 +47,11 @@ clean_data:
 add_features:
 	$(PYTHON_INTERPRETER) src/features/build_features.py $(SRC) $(DEST)
 
+## Train model
+## Usage: `make train_model DATA=data/processed/loan_sampled_50000.csv MODEL=models/model.pickle`
+train_model:
+	$(PYTHON_INTERPRETER) src/models/train_model.py $(DATA) $(MODEL)
+
 ## Delete all compiled Python files
 clean:
 	find . -type f -name "*.py[co]" -delete
