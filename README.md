@@ -11,35 +11,36 @@ Instructions
 1. Clone the repository
 
 ```bash
-git clone https://github.com/andmikey/lendingclub-analysis.git
+$ git clone https://github.com/andmikey/lendingclub-analysis.git
 ```
 
 2. Download the data + place in correct folders
 
 ```
-This is easiest done by hand, unless you already have the API tool set up.
-Go to the link above, and download the zip file.
-Move loan.csv to data/raw/loan.csv, and LCDataDictionary.xlsx to references/LCDataDictionary.xlsx. 
+This is best done by hand, unless you already have the API tool set up.
+Go to the link above, download the zip file to lending-club-loan-data.zip, unzip it, and move the files to their appropriate directories:
+$ mv loan.csv data/raw/
+$ mv LCDataDictionary.xlsx references/
 ```
 
 3. Start a new pip environment and install the required packages
 
 ```bash
-virtualenv -p `which python3` env
-source env/bin/activate
-pip3 install -r requirements.txt
+$ virtualenv -p `which python3` env
+$ source env/bin/activate
+$ pip3 install -r requirements.txt
 ```
 
 4. Pre-process the dataset for training
 
 ```bash
-make data N_SAMPLES=0
+$ make data N_SAMPLES=0
 ```
 
 5. Train the model
 
 ```bash
-make train_model DATA=data/processed/loan.csv MODEL=models/model.pickle
+$ make train_model DATA=data/processed/loan.csv MODEL=models/model.pickle
 ```
 
 Project Organization
