@@ -94,4 +94,10 @@ include/
 lib64/
 lib64
 pip-selfcheck.json
+
+
+# Misc. files
 *.xlsx
+*.pickle
+*.csv
+*.png
