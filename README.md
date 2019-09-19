@@ -8,13 +8,13 @@ In this project, we develop a model to detect if a loan will default before the 
 Instructions 
 ------------
 
-1. Clone the repository
+1. Clone the repository:
 
 ```bash
 $ git clone https://github.com/andmikey/lendingclub-analysis.git
 ```
 
-2. Download the data + place in correct folders
+2. Download the data and place in correct locations:
 
 ```
 This is best done by hand, unless you already have the API tool set up.
@@ -23,7 +23,7 @@ $ mv loan.csv data/raw/
 $ mv LCDataDictionary.xlsx references/
 ```
 
-3. Start a new pip environment and install the required packages
+3. Start a new pip environment and install the required packages:
 
 ```bash
 $ virtualenv -p `which python3` env
@@ -31,16 +31,30 @@ $ source env/bin/activate
 $ pip3 install -r requirements.txt
 ```
 
-4. Pre-process the dataset for training
+4. Pre-process the dataset for training:
 
 ```bash
 $ make data N_SAMPLES=0
 ```
 
-5. Train the model
+5. Train the model:
 
 ```bash
 $ make train_model DATA=data/processed/loan.csv MODEL=models/model.pickle
+```
+
+6. (Optional) If there is a new unlabelled dataset, say at data/processed/new_data.csv, predict the labels for the new observations:
+
+```bash
+$ make predict_model MODEL=models/model.pickle INPUT=data/processed/new_data.csv OUTPUT=models/test_predict.csv
+```
+
+7. (Optional) You can also do piece-wise data creation: sampling the data (to reduce training size), cleaning the data, and adding features:
+
+```bash
+$ make sample_data N_SAMPLES=50000
+$ make clean_data SRC=data/interim/loan_sampled_50000.csv DEST=data/interim/loan_sampled_50000-cleaned.csv
+$ make add_features SRC=data/interim/loan_sampled_50000-cleaned.csv DEST=data/processed/loan_sampled_50000.csv
 ```
 
 Project Organization
