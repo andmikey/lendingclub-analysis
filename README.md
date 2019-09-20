@@ -3,7 +3,15 @@ lendingclub-analysis
 
 This repository details an initial approach to developing a predictive model for the Lending Club loan data, available [here](https://www.kaggle.com/wendykan/lending-club-loan-data/downloads/lending-club-loan-data.zip).
 
-In this project, we develop a model to detect if a loan will default before the loan is issued.
+In this project, we develop a model to detect if a loan will default before the loan is issued. Headline figures for the tested models on the full dataset:
+
+| Name      | Logistic Regression | Decision Tree | Random Forest | *Gaussian* |
+|-----------|---------------------|---------------|---------------|------------|
+| AUC       | 0.72                | 0.52          | 0.59          | 0.64       |
+| Accuracy  | 0.41                | 0.50          | 0.61          | 0.71       |
+| Precision | 0.94                | 0.80          | 0.82          | 0.82       |
+| Recall    | 0.27                | 0.48          | 0.63          | 0.82       |
+
 
 Instructions 
 ------------
