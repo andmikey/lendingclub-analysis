@@ -1,4 +1,4 @@
-lendingclub-analysis
+Lending Club loan analysis
 ==============================
 
 This repository details an initial approach to developing a predictive model for the Lending Club loan data, available [here](https://www.kaggle.com/wendykan/lending-club-loan-data/downloads/lending-club-loan-data.zip).
