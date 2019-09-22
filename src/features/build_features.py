@@ -10,6 +10,15 @@ import numpy as np
 logger = logging.getLogger(__name__)
     
 def add_features(df):
+    """
+    Performs feature engineering (adding new columns, numeric column scaling. 
+    
+    Parameters:
+    df (pandas.DataFrame): The input dataframe
+
+    Returns:
+    df (pandas.DataFrame): The input dataframe with added features. 
+    """
     outlier_columns = ["annual_inc", "revol_bal", "tot_cur_bal", "total_bal_il", "max_bal_bc",
                        "total_rev_hi_lim", "avg_cur_bal", "bc_open_to_buy", "delinq_amnt", "tot_hi_cred_lim",
                        "total_bal_ex_mort", "total_bc_limit", "total_il_high_credit_limit"]
@@ -28,11 +37,19 @@ def add_features(df):
     df.drop(columns = ["sub_grade", "home_ownership", "verification_status", "purpose", "addr_state",
                        "issue_d", "earliest_cr_line", "is_36_month_term"],
             inplace = True)
+    
     return df
 
 def build_features_main(input_file, output_file):
     """ 
     Adds features to dataset. 
+
+    Parameters:
+    input_file (string): Location of cleaned data as a CSV. 
+    output_file (string): Location to save resulting dataframe. 
+
+    Side effects:
+    Saves dataframe to output_file. 
     """
     logger.info('Adding features to dataset')
     df = pd.read_csv(input_file, low_memory = False)

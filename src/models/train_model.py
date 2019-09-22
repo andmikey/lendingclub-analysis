@@ -17,6 +17,9 @@ logger = logging.getLogger(__name__)
 RANDOM_STATE = 10
 
 def data_from_dataset(filename):
+    """
+    Reads data from CSV and split to train/test. 
+    """
     df = pd.read_csv(filename, 
                 low_memory = False)
     
@@ -29,12 +32,18 @@ def data_from_dataset(filename):
     return X_train_orig, X_test_orig, y_train, y_test
 
 def normalize_df(df):
+    """
+    Normalize numerical colums in dataframe to be between 0 and 1. 
+    """
     scaler = MinMaxScaler()
     df = pd.DataFrame(scaler.fit_transform(df.values), 
                        columns=df.columns, index=df.index)
     return df
 
 def undersample_dataset(X_train_orig, y_train):
+    """
+    Undersamples the dataset for class 0 so there is an equal amount of 0 and 1 class entries. 
+    """
     df_train = pd.concat([X_train_orig, y_train], axis = 1)
     count_class_0, count_class_1 = df_train.target.value_counts()
     df_class_0 = df_train[df_train['target'] == 0]
@@ -42,13 +51,16 @@ def undersample_dataset(X_train_orig, y_train):
     df_class_0_under = df_class_0.sample(count_class_1)
     df_test_under = pd.concat([df_class_0_under, df_class_1], axis=0)
 
-    print(df_test_under.target.value_counts())
+    logger.info(df_test_under.target.value_counts())
     X_train_under = df_test_under.drop(columns=["target"])
     y_train_under = df_test_under["target"].astype(int)
 
     return X_train_under, y_train_under
 
 def calc_metrics(conf_mat):
+    """
+    Calculates metrics based on confusion matrix. 
+    """
     tn, fp, fn, tp = conf_mat.ravel()
     accuracy = (tp + tn) / (tn + fp + fn + tp)
     precision = tp / (tp + fp)
@@ -59,8 +71,12 @@ def calc_metrics(conf_mat):
 @click.argument('input_filepath', type=click.Path(exists=True))
 @click.argument('output_filepath', type=click.Path())
 def main(input_filepath, output_filepath):
-    """ Runs data processing scripts to turn raw data from (../raw) into
-        cleaned data ready to be analyzed (saved in ../processed).
+    """ 
+    Trains and saves model. 
+    
+    Parameters:
+    input_filepath (string): Location of data to use to train and test the model.
+    output_filepath (string): Location to save trained model. 
     """
     logger.info(f"Training model on data at {input_filepath}")
     
