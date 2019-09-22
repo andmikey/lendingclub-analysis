@@ -9,6 +9,15 @@ import pandas as pd
 logger = logging.getLogger(__name__)
     
 def add_target_variable(df):
+    """
+    Adds the target variable (1 if loan is defaulted, 0 if not), and removes the loan_status column.
+
+    Parameters:
+    df (pandas.DataFrame): Dataframe which contains a "loan_status" column.
+
+    Returns:
+    df (pandas.DataFrame): The input dataframe with an added "target" column and with "loan_status" dropped.
+    """
     default_client_values = ["Charged Off", "Default", "Does not meet the credit policy. Status:Charged Off", 
                              "Late (31-120 days)"]
     non_default_client_values = ["Fully Paid", "Does not meet the credit policy. Status:Fully Paid"]
@@ -17,7 +26,16 @@ def add_target_variable(df):
     return df[df["loan_status"].isin(target_values)].drop(columns=["loan_status"])
 
 def fix_dtypes(df):
-    # Booleans
+    """
+    Converts columns to their appropriate types (booleans, dates, categories). 
+
+    Parameters:
+    df (pandas.DataFrame): Dataframe of values.
+
+    Returns:
+    df (pandas.DataFrame): The input dataframe with type-corrected columns. 
+    """
+    # Convert columns to boolean flags, and drop the original columns
     df["is_payment_plan"] = df["pymnt_plan"] == "y"
     df["is_whole_loan"] = df["initial_list_status"] == "w"
     df["is_individual_app"] = df["application_type"] == "Individual"
@@ -27,33 +45,47 @@ def fix_dtypes(df):
     df.drop(columns = ["pymnt_plan", "initial_list_status", "application_type", 
                        "term", "disbursement_method"], inplace = True)
 
-    # Dates
+    # Convert columns to datetime columns
     for col in ["issue_d", "earliest_cr_line"]:
         df[col] = pd.to_datetime(df[col], infer_datetime_format=True)
 
-    # Categories
+    # Convert columns to categorical type
     for col in ["grade", "sub_grade", "home_ownership", 
                 "verification_status", "purpose", 
                 "addr_state"]:
         df[col] = df[col].astype('category')
 
-    # Employment length
-    df["emp_length"] = df["emp_length"].replace({"10+ years": "11 years", "< 1 year": "0 years"})
-    df["emp_length"] = df["emp_length"].str[:2].astype('float')
-    
+    # Convert employment length to an integer field.
+    # Nb. 10+ years is converted to just 10, < 1 year to 0. 
+    df["emp_length"] = df["emp_length"].replace({"10+ years": "10 years", "< 1 year": "0 years"})
+    df["emp_length"] = df["emp_length"].str[:2].astype(int)
+
+    # Drop uninformative columns
     df.drop(columns = ["emp_title", "desc", "title", "zip_code"], inplace = True)
 
     return df
 
 def fix_missing_values(df):
+    """
+    Deals with missing values in columns.
+
+    Parameters:
+    df (pandas.DataFrame): The input dataframe.
+
+    Returns:
+    df (pandas.DataFrame): The input dataframe with missing value columns either removed or cleaned. 
+    """
     logger.info(f"Columns with missing values before cleaning: {len(df.columns[df.isna().any()])}")
 
+    # These columns have all values missing, so we just drop them. 
     all_values_missing = ["id", "member_id", "url"]
     df.drop(columns = all_values_missing, inplace = True)
 
-    # Fix employment length
+    # If employment length is not known, fill with zero. 
     df["emp_length"] = df["emp_length"].fillna("0 years")
 
+    # Use the data dictionary to drop hardship and settlement fields.
+    # These columns a) have missing values, b) don't have values set until after the loan is issued. 
     df_data_dictionary = pd.read_excel("references/LCDataDictionary.xlsx").dropna()
     is_settlement_or_hardship = df_data_dictionary["Description"].str.contains("settle|hardship",
                                                                                regex=True, case=False)
@@ -62,11 +94,13 @@ def fix_missing_values(df):
         df.drop(columns = settlement_cols, inplace = True)
     except ValueError:
         df.drop(columns = settlement_cols, inplace = True, errors = 'ignore')
-        
+
+    # Drop all columns and rows relating to joint applications. 
     joint_columns = [x for x in df.columns if ('joint' in x or 'sec_app' in x)]
     df.drop(columns = joint_columns, inplace = True)
     df.drop(df[df["application_type"] != "Individual"].index, inplace = True)
 
+    # Now we work through the remaining columns. 
     columns_remaining = df.columns[df.isna().any()]
 
     cols_to_drop = []
@@ -82,6 +116,7 @@ def fix_missing_values(df):
     util_cols = [x for x in columns_remaining if "_util" in x]
     cols_to_set_zero += util_cols
 
+    # Drop date columns as uninformative. 
     date_cols = [x for x in columns_remaining if "_d" in x]
 
     flag_cols = ["max_bal_bc", "open_acc_6m", "open_act_il", "open_il_12m", 
@@ -99,7 +134,8 @@ def fix_missing_values(df):
     cols_to_drop += ["mths_since_rcnt_il", "mths_since_last_record",
                      "mths_since_recent_bc_dlq", "mths_since_last_major_derog",
                      "mths_since_recent_revol_delinq", "mths_since_last_delinq"]
-    
+
+    # If value is missing here, we assume the event has never happened, so set a boolean flag. 
     df["has_public_record"] = ~df["mths_since_last_record"].isna()
     df["has_recent_bc_dlq"] = ~df["mths_since_recent_bc_dlq"].isna()
     df["has_major_derog"] = ~df["mths_since_last_major_derog"].isna()
@@ -119,6 +155,16 @@ def fix_missing_values(df):
     return df
 
 def remove_future_columns(df):
+    """
+    Removes columns that relate to future events, ie. columns whose values are only set
+    after the loan is issued.
+
+    Parameters:
+    df (pandas.DataFrame): The input dataframe.
+
+    Returns:
+    df (pandas.DataFrame): The input dataframe with future columns dropped. 
+    """
     cols = ["collection_recovery_fee", "funded_amnt", "funded_amnt_inv", "out_prncp", "out_prncp_inv",
             "recoveries", "total_pymnt", "total_pymnt_inv", "total_rec_int", "total_rec_late_fee",
             "total_rec_prncp"]
@@ -127,6 +173,18 @@ def remove_future_columns(df):
     return df
 
 def clean_dataset(df):
+    """
+    Cleans the dataset by:
+    1. Adding the target variable
+    2. Dealing with missing values
+    3. Fixing types of columns that are incorrectly interpreted
+
+    Parameters:
+    df (pandas.DataFrame): The input dataframe
+    
+    Returns:
+    df (pandas.DataFrame): The cleaned input dataframe. 
+    """
     # Add target variable
     logger.info("Adding target column")
     df = add_target_variable(df)
@@ -151,6 +209,15 @@ def clean_dataset(df):
 def clean_dataset_main(input_file, output_file):
     """ 
     Runs data processing scripts to prepare and clean dataset.
+    Placing this separately to the main function allows us to call the main function from the command
+    line and this function from other Python files. 
+
+    Parameters:
+    input_file (string): The location of the input (raw) dataframe. 
+    output_file (string): The location to save the intermediate cleaned dataframe. 
+
+    Side effects:
+    Saves cleaned dataframe to CSV at output_file location. 
     """
     logger.info('Preparing and cleaning dataset')
     df = pd.read_csv(input_file, low_memory = False)
